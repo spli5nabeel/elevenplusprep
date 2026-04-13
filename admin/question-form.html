@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Add / Edit Question — Admin</title>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>🎓 Admin</h1><p>Grammar School Prep</p></div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin/dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+      <li><a href="/admin/questions.html"><span class="nav-icon">❓</span><span>Questions</span></a></li>
+      <li><a href="/admin/question-form.html" class="active"><span class="nav-icon">➕</span><span>Add Question</span></a></li>
+      <li><a href="/admin/users.html"><span class="nav-icon">👥</span><span>Users</span></a></li>
+      <div class="sidebar-section">Questions</div>
+      <li><a href="/admin/bulk-import.html"><span class="nav-icon">📥</span><span>Bulk Import</span></a></li>
+      <div class="sidebar-section">Other</div>
+      <li><a href="/"><span class="nav-icon">👤</span><span>Student App</span></a></li>
+      <li><a href="#" id="logoutBtn"><span class="nav-icon">🚪</span><span>Log Out</span></a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <h2 id="formTitle">Add Question</h2>
+      <p>Questions go live immediately for students</p>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;">
+
+      <!-- Form -->
+      <div class="card">
+        <form id="questionForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Subject *</label>
+              <select id="fSubject" required>
+                <option value="">Select subject…</option>
+                <option value="english">English</option>
+                <option value="maths">Mathematics</option>
+                <option value="verbal">Verbal Reasoning</option>
+                <option value="nonverbal">Non-Verbal Reasoning</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Topic *</label>
+              <select id="fTopic" required>
+                <option value="">Select topic…</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Passage (optional — reading comprehension only)</label>
+            <textarea id="fPassage" rows="4" placeholder="Paste the reading passage here. Leave blank for non-comprehension questions."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Question Text *</label>
+            <textarea id="fQuestion" rows="3" required placeholder="Type the question here…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Answer Options (one per line, 2–4 options) *</label>
+            <textarea id="fOptions" rows="5" required placeholder="Option A&#10;Option B&#10;Option C&#10;Option D"></textarea>
+          </div>
+
+          <div class="form-row-3">
+            <div class="form-group">
+              <label>Correct Answer Index * (0 = first option)</label>
+              <input type="number" id="fAnswer" min="0" max="3" required placeholder="0"/>
+            </div>
+            <div class="form-group">
+              <label>Difficulty *</label>
+              <select id="fDifficulty" required>
+                <option value="1">1 — Easy</option>
+                <option value="2" selected>2 — Medium</option>
+                <option value="3">3 — Hard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select id="fActive">
+                <option value="true">Active</option>
+                <option value="false">Inactive (draft)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Explanation * (shown after answering)</label>
+            <textarea id="fExplanation" rows="3" required placeholder="Explain why the answer is correct…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Hint (optional — shown on request)</label>
+            <input type="text" id="fHint" placeholder="A short nudge to help the student…"/>
+          </div>
+
+          <div class="btn-row" style="justify-content:flex-end;margin-top:8px;">
+            <button type="button" class="btn btn-outline" onclick="window.location.href='/admin/questions.html'">Cancel</button>
+            <button type="button" class="btn btn-outline" id="saveAddBtn">💾 Save &amp; Add Another</button>
+            <button type="submit" class="btn btn-primary" id="saveBtn">💾 Save Question</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Live Preview -->
+      <div style="position:sticky;top:20px;">
+        <div class="card">
+          <div class="card-title">👁 Live Preview</div>
+          <div id="preview" style="font-size:14px;line-height:1.6;">
+            <p style="color:var(--text-muted);">Fill in the form to see a preview…</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:0;">
+          <div class="card-title">💡 Tips</div>
+          <ul style="font-size:13px;color:var(--text-muted);line-height:1.8;padding-left:16px;">
+            <li>Answer index is 0-based: first option = 0</li>
+            <li>Passages are reused across multiple comprehension questions</li>
+            <li>Hints should nudge, not give the answer away</li>
+            <li>Aim for 3–4 options per question</li>
+            <li>Medium difficulty = Year 4–5 level</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+  requireAuth();
+
+  const TOPICS_BY_SUBJECT = {
+    english:   ["comprehension","spelling","grammar","vocabulary"],
+    maths:     ["arithmetic","fractions","wordproblems","shapes"],
+    verbal:    ["analogies","sequences","wordpatterns","codebreaking"],
+    nonverbal: ["patterns","matrices","spatial"],
+  };
+
+  // Populate topics
+  document.getElementById("fSubject").addEventListener("change", function() {
+    const topics = TOPICS_BY_SUBJECT[this.value] || [];
+    const sel = document.getElementById("fTopic");
+    sel.innerHTML = '<option value="">Select topic…</option>' + topics.map(t=>`<option value="${t}">${t}</option>`).join("");
+    // Pre-select from URL
+    const urlT = new URLSearchParams(window.location.search).get("topic");
+    if (urlT) sel.value = urlT;
+  });
+
+  // Pre-fill from URL params
+  const urlP = new URLSearchParams(window.location.search);
+  if (urlP.get("subject")) {
+    document.getElementById("fSubject").value = urlP.get("subject");
+    document.getElementById("fSubject").dispatchEvent(new Event("change"));
+  }
+
+  // Live preview
+  function updatePreview() {
+    const q       = document.getElementById("fQuestion").value;
+    const opts    = document.getElementById("fOptions").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const ansIdx  = parseInt(document.getElementById("fAnswer").value) || 0;
+    const hint    = document.getElementById("fHint").value;
+    const expl    = document.getElementById("fExplanation").value;
+    const passage = document.getElementById("fPassage").value;
+
+    if (!q && opts.length === 0) {
+      document.getElementById("preview").innerHTML = '<p style="color:var(--text-muted);">Fill in the form to see a preview…</p>';
+      return;
+    }
+
+    const letters = ["A","B","C","D"];
+    const optHtml = opts.map((o,i) => `
+      <div style="padding:8px 12px;border-radius:8px;border:1px solid ${i===ansIdx?'var(--success)':'var(--border)'};
+        background:${i===ansIdx?'rgba(72,187,120,0.1)':'var(--surface2)'};margin-bottom:6px;font-size:13px;">
+        <strong>${letters[i]}</strong> ${o} ${i===ansIdx?'✅':''}
+      </div>`).join("");
+
+    document.getElementById("preview").innerHTML = `
+      ${passage ? `<div style="border-left:3px solid var(--primary);padding:8px 12px;margin-bottom:10px;font-size:12px;color:var(--text-muted)">${passage.slice(0,200)}…</div>` : ""}
+      <p style="font-weight:700;margin-bottom:12px;">${q}</p>
+      ${optHtml}
+      ${hint ? `<p style="font-size:12px;color:var(--warning);margin-top:8px;">💡 Hint: ${hint}</p>` : ""}
+      ${expl ? `<p style="font-size:12px;color:var(--text-muted);margin-top:6px;">📖 ${expl}</p>` : ""}
+    `;
+  }
+
+  ["fQuestion","fOptions","fAnswer","fHint","fExplanation","fPassage"].forEach(id => {
+    document.getElementById(id).addEventListener("input", updatePreview);
+  });
+
+  async function saveQuestion(andAddAnother) {
+    const form = document.getElementById("questionForm");
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+
+    const options = document.getElementById("fOptions").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const payload = {
+      subject:     document.getElementById("fSubject").value,
+      topic:       document.getElementById("fTopic").value,
+      passage:     document.getElementById("fPassage").value || null,
+      question:    document.getElementById("fQuestion").value,
+      options,
+      answer:      parseInt(document.getElementById("fAnswer").value),
+      difficulty:  parseInt(document.getElementById("fDifficulty").value),
+      active:      document.getElementById("fActive").value === "true",
+      explanation: document.getElementById("fExplanation").value,
+      hint:        document.getElementById("fHint").value || null,
+    };
+
+    await adminFetch("/api/admin/questions", { method: "POST", body: JSON.stringify(payload) });
+    showToast("Question saved!", "success");
+
+    if (andAddAnother) {
+      // Keep subject/topic, clear the rest
+      document.getElementById("fPassage").value = "";
+      document.getElementById("fQuestion").value = "";
+      document.getElementById("fOptions").value = "";
+      document.getElementById("fAnswer").value = "";
+      document.getElementById("fExplanation").value = "";
+      document.getElementById("fHint").value = "";
+      updatePreview();
+    } else {
+      window.location.href = "/admin/questions.html";
+    }
+  }
+
+  document.getElementById("questionForm").addEventListener("submit", (e) => { e.preventDefault(); saveQuestion(false); });
+  document.getElementById("saveAddBtn").addEventListener("click", () => saveQuestion(true));
+
+  document.getElementById("logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault(); sessionStorage.removeItem("admin_token"); window.location.href="/admin/index.html";
+  });
+</script>
+<script src="js/admin.js"></script>
+</body>
+</html>

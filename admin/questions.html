@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Questions — Admin</title>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-logo"><h1>🎓 Admin</h1><p>Grammar School Prep</p></div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin/dashboard.html"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+      <li><a href="/admin/questions.html" class="active"><span class="nav-icon">❓</span><span>Questions</span></a></li>
+      <li><a href="/admin/question-form.html"><span class="nav-icon">➕</span><span>Add Question</span></a></li>
+      <li><a href="/admin/users.html"><span class="nav-icon">👥</span><span>Users</span></a></li>
+      <div class="sidebar-section">Questions</div>
+      <li><a href="/admin/bulk-import.html"><span class="nav-icon">📥</span><span>Bulk Import</span></a></li>
+      <div class="sidebar-section">Other</div>
+      <li><a href="/"><span class="nav-icon">👤</span><span>Student App</span></a></li>
+      <li><a href="#" id="logoutBtn"><span class="nav-icon">🚪</span><span>Log Out</span></a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <div class="page-header">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+        <div>
+          <h2>Questions</h2>
+          <p>Browse, edit and manage all questions</p>
+        </div>
+        <div class="btn-row">
+          <a href="/admin/question-form.html" class="btn btn-primary">➕ Add Question</a>
+          <a href="/admin/bulk-import.html" class="btn btn-outline">📥 Bulk Import</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <select id="filterSubject">
+        <option value="">All Subjects</option>
+        <option value="english">English</option>
+        <option value="maths">Mathematics</option>
+        <option value="verbal">Verbal Reasoning</option>
+        <option value="nonverbal">Non-Verbal Reasoning</option>
+      </select>
+      <select id="filterTopic"><option value="">All Topics</option></select>
+      <select id="filterActive">
+        <option value="">Active &amp; Inactive</option>
+        <option value="true">Active only</option>
+        <option value="false">Inactive only</option>
+      </select>
+      <select id="filterDifficulty">
+        <option value="">All Difficulties</option>
+        <option value="1">Easy</option>
+        <option value="2">Medium</option>
+        <option value="3">Hard</option>
+      </select>
+      <button class="btn btn-outline" id="searchBtn">🔍 Filter</button>
+    </div>
+
+    <div id="resultCount" style="font-size:13px;color:var(--text-muted);margin-bottom:12px;"></div>
+
+    <!-- Table -->
+    <div class="card" style="padding:0;">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Subject</th>
+              <th>Topic</th>
+              <th style="min-width:280px;">Question</th>
+              <th>Difficulty</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="questionTableBody">
+            <tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="pagination" id="pagination"></div>
+  </main>
+</div>
+
+<!-- Edit/View Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <h3 id="modalTitle">Edit Question</h3>
+    <form id="editForm">
+      <input type="hidden" id="editId"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Subject</label>
+          <select id="editSubject" required>
+            <option value="english">English</option>
+            <option value="maths">Mathematics</option>
+            <option value="verbal">Verbal Reasoning</option>
+            <option value="nonverbal">Non-Verbal Reasoning</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Topic</label>
+          <input type="text" id="editTopic" required placeholder="e.g. comprehension"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Passage (optional — for comprehension)</label>
+        <textarea id="editPassage" rows="3" placeholder="Leave blank if not a reading comprehension question"></textarea>
+      </div>
+      <div class="form-group">
+        <label>Question Text</label>
+        <textarea id="editQuestion" rows="3" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Options (one per line, exactly 2–4)</label>
+        <textarea id="editOptions" rows="4" placeholder="Option A&#10;Option B&#10;Option C&#10;Option D" required></textarea>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Correct Answer (0-indexed)</label>
+          <input type="number" id="editAnswer" min="0" max="3" required/>
+        </div>
+        <div class="form-group">
+          <label>Difficulty (1=Easy 2=Med 3=Hard)</label>
+          <input type="number" id="editDifficulty" min="1" max="3" value="2" required/>
+        </div>
+        <div class="form-group">
+          <label>Active</label>
+          <select id="editActive">
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Explanation</label>
+        <textarea id="editExplanation" rows="2" required></textarea>
+      </div>
+      <div class="form-group">
+        <label>Hint (optional)</label>
+        <input type="text" id="editHint" placeholder="A short hint for the student"/>
+      </div>
+      <div class="btn-row" style="justify-content:flex-end;margin-top:8px;">
+        <button type="button" class="btn btn-outline" id="modalCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  requireAuth();
+
+  const TOPICS_BY_SUBJECT = {
+    english:   ["comprehension","spelling","grammar","vocabulary"],
+    maths:     ["arithmetic","fractions","wordproblems","shapes"],
+    verbal:    ["analogies","sequences","wordpatterns","codebreaking"],
+    nonverbal: ["patterns","matrices","spatial"],
+  };
+
+  let allQuestions = [], filtered = [], page = 0;
+  const PER_PAGE = 20;
+
+  // Populate filter topics when subject changes
+  document.getElementById("filterSubject").addEventListener("change", function() {
+    const topics = TOPICS_BY_SUBJECT[this.value] || [];
+    const sel = document.getElementById("filterTopic");
+    sel.innerHTML = '<option value="">All Topics</option>' + topics.map(t => `<option value="${t}">${t}</option>`).join("");
+  });
+
+  async function loadQuestions() {
+    const subject    = document.getElementById("filterSubject").value;
+    const topic      = document.getElementById("filterTopic").value;
+    const active     = document.getElementById("filterActive").value;
+    const difficulty = document.getElementById("filterDifficulty").value;
+
+    let url = "/api/admin/questions?limit=500";
+    if (subject) url += `&subject=${subject}`;
+    if (topic)   url += `&topic=${topic}`;
+    if (active)  url += `&active=${active}`;
+
+    allQuestions = await adminFetch(url);
+
+    // Client-side difficulty filter
+    filtered = difficulty ? allQuestions.filter(q => q.difficulty == difficulty) : allQuestions;
+
+    page = 0;
+    renderTable();
+  }
+
+  function renderTable() {
+    const start = page * PER_PAGE;
+    const slice = filtered.slice(start, start + PER_PAGE);
+
+    document.getElementById("resultCount").textContent =
+      `Showing ${Math.min(start+1, filtered.length)}–${Math.min(start+PER_PAGE, filtered.length)} of ${filtered.length} questions`;
+
+    const diffLabel = ["","Easy","Medium","Hard"];
+    const tbody = document.getElementById("questionTableBody");
+    tbody.innerHTML = slice.length === 0
+      ? `<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--text-muted);">No questions found</td></tr>`
+      : slice.map(q => `
+        <tr>
+          <td style="color:var(--text-muted)">#${q.id}</td>
+          <td><span class="badge badge-${q.subject}">${q.subject}</span></td>
+          <td><code style="font-size:12px">${q.topic}</code></td>
+          <td style="max-width:320px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${escHtml(q.question)}">${escHtml(q.question)}</td>
+          <td><span class="badge badge-${diffLabel[q.difficulty]?.toLowerCase()}">${diffLabel[q.difficulty]}</span></td>
+          <td><span class="badge ${q.active ? 'badge-active' : 'badge-inactive'}">${q.active ? 'Active' : 'Inactive'}</span></td>
+          <td>
+            <div class="btn-row">
+              <button class="btn btn-outline btn-sm" onclick="openEdit(${q.id})">✏️</button>
+              <button class="btn ${q.active ? 'btn-danger' : 'btn-success'} btn-sm" onclick="toggleActive(${q.id}, ${q.active})">
+                ${q.active ? '🗑' : '♻️'}
+              </button>
+            </div>
+          </td>
+        </tr>`).join("");
+
+    renderPagination();
+  }
+
+  function renderPagination() {
+    const totalPages = Math.ceil(filtered.length / PER_PAGE);
+    const pg = document.getElementById("pagination");
+    if (totalPages <= 1) { pg.innerHTML = ""; return; }
+    let html = "";
+    if (page > 0) html += `<button class="page-btn" onclick="goPage(${page-1})">‹</button>`;
+    for (let i = 0; i < totalPages; i++) {
+      html += `<button class="page-btn ${i===page?'active':''}" onclick="goPage(${i})">${i+1}</button>`;
+    }
+    if (page < totalPages-1) html += `<button class="page-btn" onclick="goPage(${page+1})">›</button>`;
+    pg.innerHTML = html;
+  }
+
+  function goPage(p) { page = p; renderTable(); window.scrollTo(0,0); }
+
+  function escHtml(s) { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+  // ---- Edit modal ----
+  async function openEdit(id) {
+    const q = await adminFetch(`/api/admin/questions/${id}`);
+    document.getElementById("editId").value         = q.id;
+    document.getElementById("editSubject").value    = q.subject;
+    document.getElementById("editTopic").value      = q.topic;
+    document.getElementById("editPassage").value    = q.passage || "";
+    document.getElementById("editQuestion").value   = q.question;
+    document.getElementById("editOptions").value    = q.options.join("\n");
+    document.getElementById("editAnswer").value     = q.answer;
+    document.getElementById("editDifficulty").value = q.difficulty;
+    document.getElementById("editActive").value     = String(q.active);
+    document.getElementById("editExplanation").value = q.explanation;
+    document.getElementById("editHint").value       = q.hint || "";
+    document.getElementById("editModal").classList.add("show");
+  }
+
+  document.getElementById("modalCancelBtn").addEventListener("click", () => {
+    document.getElementById("editModal").classList.remove("show");
+  });
+
+  document.getElementById("editForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("editId").value;
+    const options = document.getElementById("editOptions").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    const payload = {
+      subject:     document.getElementById("editSubject").value,
+      topic:       document.getElementById("editTopic").value,
+      passage:     document.getElementById("editPassage").value || null,
+      question:    document.getElementById("editQuestion").value,
+      options,
+      answer:      parseInt(document.getElementById("editAnswer").value),
+      difficulty:  parseInt(document.getElementById("editDifficulty").value),
+      active:      document.getElementById("editActive").value === "true",
+      explanation: document.getElementById("editExplanation").value,
+      hint:        document.getElementById("editHint").value || null,
+    };
+    await adminFetch(`/api/admin/questions/${id}`, { method: "PUT", body: JSON.stringify(payload) });
+    document.getElementById("editModal").classList.remove("show");
+    showToast("Question updated", "success");
+    loadQuestions();
+  });
+
+  async function toggleActive(id, isActive) {
+    if (isActive) {
+      await adminFetch(`/api/admin/questions/${id}`, { method: "DELETE" });
+      showToast("Question deactivated", "success");
+    } else {
+      await adminFetch(`/api/admin/questions/${id}/restore`, { method: "PATCH" });
+      showToast("Question restored", "success");
+    }
+    loadQuestions();
+  }
+
+  document.getElementById("searchBtn").addEventListener("click", loadQuestions);
+  document.getElementById("logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault(); sessionStorage.removeItem("admin_token"); window.location.href="/admin/index.html";
+  });
+
+  // Pre-fill filters from URL
+  const urlP = new URLSearchParams(window.location.search);
+  if (urlP.get("subject")) { document.getElementById("filterSubject").value = urlP.get("subject"); document.getElementById("filterSubject").dispatchEvent(new Event("change")); }
+  if (urlP.get("topic"))   document.getElementById("filterTopic").value = urlP.get("topic");
+
+  loadQuestions();
+</script>
+<script src="js/admin.js"></script>
+</body>
+</html>

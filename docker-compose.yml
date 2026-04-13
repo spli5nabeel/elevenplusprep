@@ -1,0 +1,40 @@
+services:
+
+  app:
+    build: .
+    expose:
+      - "8000"          # internal only — not published to host
+    networks:
+      - proxy_net
+    volumes:
+      - db_data:/data
+    environment:
+      DATABASE_URL: sqlite:////data/grammar_school.db
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-changeme}
+    restart: unless-stopped
+
+  nginx-proxy-manager:
+    image: jc21/nginx-proxy-manager:latest
+    ports:
+      - "80:80"         # HTTP  (Let's Encrypt challenge + redirect)
+      - "443:443"       # HTTPS
+      - "81:81"         # NPM admin UI — firewall this after first setup
+    networks:
+      - proxy_net
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "/usr/bin/check-health"]
+      interval: 10s
+      timeout: 3s
+
+networks:
+  proxy_net:
+    driver: bridge
+
+volumes:
+  db_data:
+  npm_data:
+  npm_letsencrypt:

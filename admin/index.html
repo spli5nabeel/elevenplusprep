@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Login — Grammar School Prep</title>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo">🎓</div>
+    <h1>Admin Portal</h1>
+    <p>Grammar School 11+ Prep Platform</p>
+
+    <div class="error-msg" id="errorMsg">Incorrect token. Please try again.</div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="tokenInput">Admin Token</label>
+        <input type="password" id="tokenInput" placeholder="Enter admin token" autocomplete="current-password" required/>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">
+        Sign In →
+      </button>
+    </form>
+
+    <p style="margin-top:20px;font-size:12px;color:var(--text-muted);text-align:center;">
+      Default token: <code style="background:var(--surface2);padding:2px 6px;border-radius:4px;">admin123</code><br>
+      Change in <code>.env</code> file.
+    </p>
+  </div>
+</div>
+
+<script>
+  // Redirect if already logged in
+  if (sessionStorage.getItem("admin_token")) {
+    window.location.href = "/admin/dashboard.html";
+  }
+
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const token = document.getElementById("tokenInput").value.trim();
+
+    // Verify token by hitting a protected endpoint
+    const r = await fetch("/api/admin/stats", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+
+    if (r.ok) {
+      sessionStorage.setItem("admin_token", token);
+      window.location.href = "/admin/dashboard.html";
+    } else {
+      document.getElementById("errorMsg").classList.add("show");
+    }
+  });
+</script>
+</body>
+</html>

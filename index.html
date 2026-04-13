@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>11+ Prep — Grammar School</title>
+  <link rel="stylesheet" href="css/style.css?v=10"/>
+</head>
+<body>
+
+<!-- =====================================================
+     SCREEN 1 — AUTH (visible when NOT logged in)
+     ===================================================== -->
+<div id="screen-auth">
+
+  <div class="auth-page">
+
+    <!-- Branding above the card -->
+    <div class="auth-branding">
+      <div class="auth-brand-logo">🎓</div>
+      <h1 class="auth-brand-name">11+ Prep</h1>
+      <p class="auth-brand-sub">Grammar School Preparation</p>
+    </div>
+
+    <!-- Auth card -->
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin"    onclick="switchTab('login')">Sign In</button>
+        <button class="auth-tab"        id="tabRegister" onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login -->
+      <form id="loginForm" class="auth-form">
+        <div class="auth-error" id="loginError"></div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="Enter your username"
+                 autocomplete="username" required/>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password"
+                 autocomplete="current-password" required/>
+        </div>
+        <button type="submit" class="btn-auth-submit" id="loginBtn">Sign In →</button>
+        <p class="auth-switch">
+          Don't have an account?
+          <a href="#" onclick="switchTab('register');return false">Register free</a>
+        </p>
+      </form>
+
+      <!-- Register -->
+      <form id="registerForm" class="auth-form" style="display:none">
+        <div class="auth-error" id="registerError"></div>
+        <div class="form-group">
+          <label>Your Name</label>
+          <input type="text" id="regName" placeholder="e.g. Ali" required/>
+        </div>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="regUsername" placeholder="e.g. ali_prep"
+                 autocomplete="username" required/>
+          <span class="field-hint">Letters, numbers, hyphens only · min 3 characters</span>
+        </div>
+        <div class="form-group">
+          <label>Year Group</label>
+          <select id="regYearGroup">
+            <option value="3">Year 3</option>
+            <option value="4">Year 4</option>
+            <option value="5">Year 5</option>
+            <option value="6">Year 6</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Min 6 characters"
+                 autocomplete="new-password" required/>
+        </div>
+        <button type="submit" class="btn-auth-submit" id="registerBtn">Create Account →</button>
+        <p class="auth-switch">
+          Already registered?
+          <a href="#" onclick="switchTab('login');return false">Sign in</a>
+        </p>
+      </form>
+    </div>
+
+    <!-- Feature pills below the card -->
+    <div class="auth-features">
+      <span class="auth-feature-pill">📊 Progress tracking</span>
+      <span class="auth-feature-pill">🏆 Points &amp; streaks</span>
+      <span class="auth-feature-pill">📚 194+ questions</span>
+      <span class="auth-feature-pill">🎯 11+ focused</span>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- =====================================================
+     SCREEN 2 — APP (visible after login)
+     ===================================================== -->
+<div id="screen-app" style="display:none">
+
+  <!-- Top Nav -->
+  <nav class="nav">
+    <a class="nav-logo" href="#" onclick="goHome();return false;">
+      <div class="logo-icon">🎓</div>
+      <div>
+        <div class="logo-text">11+ Prep</div>
+        <div class="logo-sub">Grammar School Prep</div>
+      </div>
+    </a>
+    <div class="nav-right">
+      <div class="nav-streak">🔥 <span id="navStreak">0</span></div>
+      <div class="nav-points">⭐ <span id="navPoints">0</span></div>
+      <div class="nav-user-chip" onclick="openProfileModal()">
+        <span class="nav-user-avatar" id="navUserAvatar">?</span>
+        <span id="navUserName">Student</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="auth-modal" style="max-width:400px">
+      <div class="auth-tabs">
+        <span style="font-weight:800;font-size:16px;padding:4px 0;">My Account</span>
+        <button class="auth-close" onclick="closeProfileModal()">✕</button>
+      </div>
+      <div style="padding:24px">
+        <div style="text-align:center;margin-bottom:20px">
+          <div style="width:72px;height:72px;border-radius:50%;background:var(--primary);color:white;
+               font-size:32px;font-weight:900;display:flex;align-items:center;justify-content:center;
+               margin:0 auto 12px" id="profileAvatar">A</div>
+          <div style="font-size:20px;font-weight:800" id="profileName">Student</div>
+          <div style="font-size:13px;color:#718096" id="profileMeta">@username · Year 3</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+          <div style="background:#F0F2FF;border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:24px;font-weight:900;color:#6C63FF" id="profilePoints">0</div>
+            <div style="font-size:12px;color:#718096;font-weight:600">Points</div>
+          </div>
+          <div style="background:#F0F2FF;border-radius:12px;padding:14px;text-align:center">
+            <div style="font-size:24px;font-weight:900;color:#6C63FF" id="profileQuizzes">0</div>
+            <div style="font-size:12px;color:#718096;font-weight:600">Quizzes Done</div>
+          </div>
+        </div>
+        <div style="border-top:1px solid #E2E8F0;padding-top:16px">
+          <p style="font-size:12px;font-weight:800;margin-bottom:12px;color:#718096;
+             text-transform:uppercase;letter-spacing:.5px">Change Password</p>
+          <div class="auth-error" id="pwChangeError" style="margin-bottom:8px"></div>
+          <div class="form-group">
+            <input type="password" id="pwOld" placeholder="Current password"/>
+          </div>
+          <div class="form-group">
+            <input type="password" id="pwNew" placeholder="New password (min 6 chars)"/>
+          </div>
+          <button class="btn-auth-submit" style="background:#4ECDC4" onclick="changePassword()">
+            Update Password
+          </button>
+        </div>
+        <button onclick="logOut()"
+          style="width:100%;margin-top:16px;padding:12px;border-radius:12px;
+                 border:2px solid #FC8181;background:transparent;color:#FC8181;
+                 font-size:14px;font-weight:700;cursor:pointer">
+          🚪 Sign Out
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz Setup Modal -->
+  <div class="modal-overlay" id="quizSetupModal">
+    <div class="auth-modal" style="max-width:380px">
+      <div class="auth-tabs">
+        <span style="font-weight:800;font-size:16px;padding:4px 0;" id="quizSetupTitle">Start Quiz</span>
+        <button class="auth-close" onclick="closeQuizSetup()">✕</button>
+      </div>
+      <div style="padding:24px">
+        <p style="font-size:14px;color:#718096;margin-bottom:20px" id="quizSetupDesc">Choose how many questions you want to attempt.</p>
+        <div style="background:#F0F2FF;border-radius:12px;padding:16px;margin-bottom:20px;text-align:center">
+          <div style="font-size:13px;font-weight:700;color:#718096;margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px">Number of Questions</div>
+          <div style="display:flex;align-items:center;gap:12px;justify-content:center">
+            <button onclick="adjustQCount(-1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #6C63FF;background:white;color:#6C63FF;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center">−</button>
+            <span id="qCountDisplay" style="font-size:40px;font-weight:900;color:#6C63FF;min-width:60px;text-align:center">5</span>
+            <button onclick="adjustQCount(1)" style="width:36px;height:36px;border-radius:50%;border:2px solid #6C63FF;background:white;color:#6C63FF;font-size:20px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center">+</button>
+          </div>
+          <div style="font-size:12px;color:#718096;margin-top:8px">out of <strong id="qCountTotal">12</strong> available</div>
+          <input type="range" id="qCountSlider" min="1" max="12" value="5"
+            style="width:100%;margin-top:16px;accent-color:#6C63FF"
+            oninput="syncSlider(this.value)"/>
+        </div>
+        <button class="btn-auth-submit" onclick="confirmQuizSetup()">Start Exam →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Confetti -->
+  <div class="confetti-overlay" id="confettiOverlay"></div>
+
+  <!-- PAGE: Dashboard -->
+  <main class="page active" id="page-dashboard">
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h1 id="greeting">Good morning, Champion!</h1>
+        <p>Keep practising — grammar school is within reach!</p>
+      </div>
+      <div class="welcome-emoji">🚀</div>
+    </div>
+
+    <div class="section-title">📊 Your Progress</div>
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-value" id="statQuizzes">0</div>
+        <div class="stat-label">Quizzes Done</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statPoints">0</div>
+        <div class="stat-label">Total Points</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statStreak">0 days</div>
+        <div class="stat-label">Daily Streak</div>
+      </div>
+    </div>
+
+    <div class="section-title">📚 Choose a Subject</div>
+    <div class="subjects-grid">
+      <div class="subject-card english" id="card-english" data-subject="english">
+        <span class="subject-badge">Year 3-6</span>
+        <span class="subject-icon">📖</span>
+        <h3>English</h3>
+        <p>Comprehension, spelling, grammar and vocabulary</p>
+        <div class="subject-progress">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+          <div class="progress-label">Not started yet</div>
+        </div>
+      </div>
+      <div class="subject-card maths" id="card-maths" data-subject="maths">
+        <span class="subject-badge">Year 3-6</span>
+        <span class="subject-icon">🔢</span>
+        <h3>Mathematics</h3>
+        <p>Arithmetic, fractions, word problems and shapes</p>
+        <div class="subject-progress">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+          <div class="progress-label">Not started yet</div>
+        </div>
+      </div>
+      <div class="subject-card verbal" id="card-verbal" data-subject="verbal">
+        <span class="subject-badge">11+ Key</span>
+        <span class="subject-icon">💡</span>
+        <h3>Verbal Reasoning</h3>
+        <p>Analogies, word patterns, code breaking and sequences</p>
+        <div class="subject-progress">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+          <div class="progress-label">Not started yet</div>
+        </div>
+      </div>
+      <div class="subject-card nonverbal" id="card-nonverbal" data-subject="nonverbal">
+        <span class="subject-badge">11+ Key</span>
+        <span class="subject-icon">🎯</span>
+        <h3>Non-Verbal Reasoning</h3>
+        <p>Shape patterns, matrices and spatial reasoning</p>
+        <div class="subject-progress">
+          <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:0%"></div></div>
+          <div class="progress-label">Not started yet</div>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:white;border-radius:20px;padding:28px 32px;
+         box-shadow:0 4px 20px rgba(108,99,255,0.12);margin-bottom:16px;">
+      <div class="section-title" style="margin-bottom:16px;">📋 About the 11+ Exam</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+        <div style="background:#F0F2FF;border-radius:14px;padding:16px;">
+          <div style="font-size:24px;margin-bottom:8px;">📅</div>
+          <div style="font-weight:800;margin-bottom:4px;">When to sit</div>
+          <div style="font-size:13px;color:#718096;">Year 6, aged 10–11. Registration usually opens Year 5 (September).</div>
+        </div>
+        <div style="background:#FFF5F5;border-radius:14px;padding:16px;">
+          <div style="font-size:24px;margin-bottom:8px;">📝</div>
+          <div style="font-weight:800;margin-bottom:4px;">Subjects tested</div>
+          <div style="font-size:13px;color:#718096;">English, Maths, Verbal &amp; Non-Verbal Reasoning (varies by school).</div>
+        </div>
+        <div style="background:#F0FFF8;border-radius:14px;padding:16px;">
+          <div style="font-size:24px;margin-bottom:8px;">🏫</div>
+          <div style="font-weight:800;margin-bottom:4px;">Essex / Redbridge</div>
+          <div style="font-size:13px;color:#718096;">Ilford County, Valentines, Woodford County and more.</div>
+        </div>
+        <div style="background:#FFFBF0;border-radius:14px;padding:16px;">
+          <div style="font-size:24px;margin-bottom:8px;">⭐</div>
+          <div style="font-weight:800;margin-bottom:4px;">Tip for Year 3</div>
+          <div style="font-size:13px;color:#718096;">Focus on times tables, spelling and reading widely.</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PAGE: Subject topics -->
+  <main class="page" id="page-subject">
+    <button class="back-btn" id="backFromSubject">← Back to Home</button>
+    <div id="subjectHeader" class="subject-header"></div>
+    <div class="section-title">Choose a Topic</div>
+    <div class="topics-grid" id="topicsGrid"></div>
+  </main>
+
+  <!-- PAGE: Quiz -->
+  <main class="page" id="page-quiz">
+    <button class="back-btn" id="backFromQuiz">← Back to Topics</button>
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-info">
+          <h3 id="quizSubjectName">Subject — Topic</h3>
+          <p>Question <span id="questionCurrentNum">1</span> of <span id="quizTotalQ">5</span></p>
+        </div>
+        <div class="quiz-timer" id="quizTimer">5:00</div>
+      </div>
+      <div class="question-progress" id="questionProgress"></div>
+      <div class="question-card">
+        <div class="question-number" id="questionNumber">Question 1 of 5</div>
+        <div id="questionPassage"></div>
+        <div class="question-text" id="questionText"></div>
+        <button class="hint-btn" id="hintBtn">💡 Show Hint</button>
+        <div class="hint-box" id="hintBox"></div>
+        <div class="options-grid" id="optionsContainer"></div>
+        <div class="feedback-box" id="feedbackBox"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn btn-primary" id="nextBtn" disabled>Next Question →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- PAGE: Results -->
+  <main class="page" id="page-results">
+    <div class="results-container">
+      <div class="results-card">
+        <span class="results-emoji" id="resultsEmoji">🏆</span>
+        <h2 id="resultsMessage">Outstanding work!</h2>
+        <p>Here's how you did on this quiz</p>
+        <div class="score-circle">
+          <div class="score-num" id="resultsScoreNum">5</div>
+          <div class="score-denom" id="resultsScoreDenom">/ 5</div>
+        </div>
+        <div class="results-breakdown">
+          <div class="breakdown-item">
+            <div class="bi-label">Score</div>
+            <div class="bi-value" id="resultsPct">100%</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Points Earned</div>
+            <div class="bi-value" id="resultsPoints">+50 pts</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Time Taken</div>
+            <div class="bi-value" id="resultsTime">2:34</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Questions</div>
+            <div class="bi-value" id="resultsHints">5</div>
+          </div>
+        </div>
+        <div class="results-actions">
+          <button class="btn btn-primary"  id="retryBtn">🔄 Try Again</button>
+          <button class="btn btn-outline"  id="chooseTopicBtn">📚 Choose Topic</button>
+          <button class="btn btn-outline"  id="homeBtn">🏠 Home</button>
+        </div>
+      </div>
+      <div id="answersReview" class="answers-review"></div>
+    </div>
+  </main>
+
+  <!-- PAGE: Progress -->
+  <main class="page progress-page" id="page-progress">
+    <div class="section-title">📈 My Progress</div>
+    <div class="overall-card">
+      <div style="font-size:16px;font-weight:800;margin-bottom:16px;">Overall Statistics</div>
+      <div class="overall-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="progTotalPoints">0</div>
+          <div class="stat-label">Total Points</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="progTotalQuizzes">0</div>
+          <div class="stat-label">Quizzes Done</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="progStreak">0 days</div>
+          <div class="stat-label">Day Streak</div>
+        </div>
+      </div>
+    </div>
+    <div class="section-title">Subject Breakdown</div>
+    <div id="subjectProgressList"></div>
+  </main>
+
+  <!-- PAGE: Mock Exam Setup -->
+  <main class="page" id="page-mock">
+    <div class="mock-hero">
+      <div class="mock-hero-icon">📋</div>
+      <h2>11+ Mock Exam</h2>
+      <p>Simulate real exam conditions across all subjects</p>
+    </div>
+    <div class="mock-formats" id="mockFormats">
+      <div class="mock-format-card" onclick="startMockExam(5)">
+        <div class="mf-icon">⚡</div>
+        <div class="mf-info">
+          <h4>Quick Practice</h4>
+          <p>5 questions per subject · ~20 questions · 20 mins</p>
+        </div>
+        <div class="mf-arrow">→</div>
+      </div>
+      <div class="mock-format-card" onclick="startMockExam(10)">
+        <div class="mf-icon">📝</div>
+        <div class="mf-info">
+          <h4>Standard Mock</h4>
+          <p>10 questions per subject · ~40 questions · 40 mins</p>
+        </div>
+        <div class="mf-arrow">→</div>
+      </div>
+      <div class="mock-format-card" onclick="startMockExam(20)">
+        <div class="mf-icon">🏆</div>
+        <div class="mf-info">
+          <h4>Full Mock Exam</h4>
+          <p>20 questions per subject · ~80 questions · 80 mins</p>
+        </div>
+        <div class="mf-arrow">→</div>
+      </div>
+    </div>
+    <div class="mock-info-box">
+      <strong>📌 How it works</strong>
+      <ul>
+        <li>Questions are drawn randomly from all four subjects</li>
+        <li>Exam runs section by section: English → Maths → Verbal → Non-Verbal</li>
+        <li>No hints or feedback during the exam</li>
+        <li>Your score breakdown is shown at the end</li>
+      </ul>
+    </div>
+  </main>
+
+  <!-- PAGE: Mock Exam (in progress) -->
+  <main class="page" id="page-mock-exam">
+    <div class="quiz-container">
+      <div class="quiz-header">
+        <div class="quiz-info">
+          <h3 id="mockSectionName">English</h3>
+          <p>Question <span id="mockCurrentNum">1</span> of <span id="mockTotalQ">40</span></p>
+        </div>
+        <div class="quiz-timer" id="mockTimer">40:00</div>
+      </div>
+      <div class="mock-section-bar" id="mockSectionBar"></div>
+      <div class="question-progress" id="mockQuestionProgress"></div>
+      <div class="question-card">
+        <div class="question-number" id="mockQuestionNumber">Question 1</div>
+        <div id="mockQuestionPassage"></div>
+        <div class="question-text" id="mockQuestionText"></div>
+        <div class="options-grid" id="mockOptionsContainer"></div>
+      </div>
+      <div class="quiz-actions">
+        <button class="btn btn-primary" id="mockNextBtn" disabled>Next Question →</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- PAGE: Mock Exam Results -->
+  <main class="page" id="page-mock-results">
+    <div class="results-container">
+      <div class="results-card">
+        <span class="results-emoji" id="mockResultsEmoji">🏆</span>
+        <h2 id="mockResultsMessage">Outstanding work!</h2>
+        <p>Here's your full mock exam breakdown</p>
+        <div class="score-circle">
+          <div class="score-num" id="mockScoreNum">0</div>
+          <div class="score-denom" id="mockScoreDenom">/ 0</div>
+        </div>
+        <div class="results-breakdown">
+          <div class="breakdown-item">
+            <div class="bi-label">Overall Score</div>
+            <div class="bi-value" id="mockOverallPct">0%</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Points Earned</div>
+            <div class="bi-value" id="mockPointsEarned">+0 pts</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Time Taken</div>
+            <div class="bi-value" id="mockTimeTaken">0:00</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="bi-label">Total Questions</div>
+            <div class="bi-value" id="mockTotalDone">0</div>
+          </div>
+        </div>
+      </div>
+      <!-- Subject breakdown -->
+      <div id="mockSubjectBreakdown"></div>
+      <div class="results-actions" style="margin-top:16px">
+        <button class="btn btn-primary" onclick="showPage('page-mock'); renderDashboard();">📋 Try Another Mock</button>
+        <button class="btn btn-outline" onclick="goHome()">🏠 Home</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <button class="bottom-nav-btn active" data-page="page-dashboard">
+      <span class="nav-icon">🏠</span>Home
+    </button>
+    <button class="bottom-nav-btn" data-page="page-mock">
+      <span class="nav-icon">📋</span>Mock Exam
+    </button>
+    <button class="bottom-nav-btn" data-page="page-progress">
+      <span class="nav-icon">📈</span>Progress
+    </button>
+  </nav>
+
+</div><!-- /screen-app -->
+
+<script src="js/app.js?v=10"></script>
+</body>
+</html>

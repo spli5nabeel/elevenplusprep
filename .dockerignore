@@ -1,0 +1,11 @@
+__pycache__
+**/__pycache__
+*.pyc
+*.pyo
+*.pyd
+.env
+grammar_school.db
+.git
+.gitignore
+memory/
+run.py

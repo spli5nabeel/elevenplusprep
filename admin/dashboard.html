@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Admin Dashboard — Grammar School Prep</title>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>🎓 Admin</h1>
+      <p>Grammar School Prep</p>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/admin/dashboard.html" class="active"><span class="nav-icon">📊</span><span>Dashboard</span></a></li>
+      <li><a href="/admin/questions.html"><span class="nav-icon">❓</span><span>Questions</span></a></li>
+      <li><a href="/admin/question-form.html"><span class="nav-icon">➕</span><span>Add Question</span></a></li>
+      <li><a href="/admin/users.html"><span class="nav-icon">👥</span><span>Users</span></a></li>
+      <div class="sidebar-section">Questions</div>
+      <li><a href="/admin/bulk-import.html"><span class="nav-icon">📥</span><span>Bulk Import</span></a></li>
+      <div class="sidebar-section">Other</div>
+      <li><a href="/"><span class="nav-icon">👤</span><span>Student App</span></a></li>
+      <li><a href="#" id="logoutBtn"><span class="nav-icon">🚪</span><span>Log Out</span></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="page-header">
+      <h2>Dashboard</h2>
+      <p>Overview of questions and student activity</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-box"><div class="sv" id="totalQ">—</div><div class="sl">Total Questions</div></div>
+      <div class="stat-box"><div class="sv" id="activeQ">—</div><div class="sl">Active Questions</div></div>
+      <div class="stat-box"><div class="sv" id="totalSessions">—</div><div class="sl">Student Sessions</div></div>
+      <div class="stat-box"><div class="sv" id="totalQuizzes">—</div><div class="sl">Quizzes Completed</div></div>
+    </div>
+
+    <!-- Questions by Topic -->
+    <div class="card">
+      <div class="card-title">📚 Questions by Subject & Topic</div>
+      <div class="table-wrap">
+        <table id="topicTable">
+          <thead>
+            <tr>
+              <th>Subject</th>
+              <th>Topic</th>
+              <th>Total</th>
+              <th>Active</th>
+              <th>Coverage</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="topicTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  requireAuth();
+
+  async function loadDashboard() {
+    const stats = await adminFetch("/api/admin/stats");
+
+    document.getElementById("totalQ").textContent        = stats.total_questions;
+    document.getElementById("activeQ").textContent       = stats.active_questions;
+    document.getElementById("totalSessions").textContent = stats.total_sessions;
+    document.getElementById("totalQuizzes").textContent  = stats.total_quizzes;
+
+    const tbody = document.getElementById("topicTableBody");
+    tbody.innerHTML = "";
+    stats.by_topic.forEach(row => {
+      const pct = row.total > 0 ? Math.round((row.active / row.total) * 100) : 0;
+      const diff = row.active < 5 ? `<span style="color:var(--error);font-size:12px;">⚠ Low</span>` : "";
+      tbody.innerHTML += `
+        <tr>
+          <td><span class="badge badge-${row.subject}">${row.subject}</span></td>
+          <td>${row.topic}</td>
+          <td>${row.total}</td>
+          <td>${row.active} ${diff}</td>
+          <td class="topic-bar-cell">
+            <span style="font-size:12px">${pct}%</span>
+            <div class="mini-bar"><div class="mini-bar-fill" style="width:${pct}%"></div></div>
+          </td>
+          <td>
+            <a href="/admin/questions.html?subject=${row.subject}&topic=${row.topic}" class="btn btn-outline btn-sm">View</a>
+            <a href="/admin/question-form.html?subject=${row.subject}&topic=${row.topic}" class="btn btn-primary btn-sm">Add</a>
+          </td>
+        </tr>`;
+    });
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", (e) => {
+    e.preventDefault();
+    sessionStorage.removeItem("admin_token");
+    window.location.href = "/admin/index.html";
+  });
+
+  loadDashboard();
+</script>
+<script src="js/admin.js"></script>
+</body>
+</html>
