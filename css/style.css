@@ -1354,3 +1354,46 @@ body {
   color: var(--text-light);
   margin-top: 4px;
 }
+
+/* ── Cookie consent banner ─────────────────────────────── */
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(15, 15, 30, 0.97);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(8px);
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  z-index: 9999;
+  flex-wrap: wrap;
+}
+.cookie-text {
+  font-size: 13px;
+  color: var(--text-muted);
+  flex: 1;
+  min-width: 220px;
+}
+.cookie-link {
+  color: var(--primary-light);
+  text-decoration: underline;
+  margin-left: 4px;
+}
+.cookie-accept {
+  padding: 8px 22px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+.cookie-accept:hover { background: var(--primary-dark); }

@@ -53,6 +53,15 @@ function showAuthScreen() {
 function showAppScreen() {
   document.getElementById("screen-auth").style.display = "none";
   document.getElementById("screen-app").style.display  = "";
+  // Show cookie banner if not yet accepted
+  if (!localStorage.getItem("cookie_accepted")) {
+    document.getElementById("cookieBanner").style.display = "flex";
+  }
+}
+
+function acceptCookies() {
+  localStorage.setItem("cookie_accepted", "1");
+  document.getElementById("cookieBanner").style.display = "none";
 }
 
 // ============================================================

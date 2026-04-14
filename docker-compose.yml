@@ -9,7 +9,7 @@ services:
       - db_data:/data
     environment:
       DATABASE_URL: sqlite:////data/grammar_school.db
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-admin123}
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-changeme}
     restart: unless-stopped
 
 volumes:
