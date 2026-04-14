@@ -48,6 +48,12 @@ function authHeaders() {
 function showAuthScreen() {
   document.getElementById("screen-auth").style.display = "";
   document.getElementById("screen-app").style.display  = "none";
+  // Clear registration form so previous entries don't persist
+  document.getElementById("regName").value       = "";
+  document.getElementById("regUsername").value   = "";
+  document.getElementById("regPassword").value   = "";
+  document.getElementById("captchaAnswer").value = "";
+  switchTab("login");
 }
 
 function showAppScreen() {
@@ -147,6 +153,11 @@ async function handleRegister(e) {
     }
     const { token, user, session_id } = await r.json();
     saveAuth(token, user, session_id);
+    // Clear registration form
+    document.getElementById("regName").value     = "";
+    document.getElementById("regUsername").value = "";
+    document.getElementById("regPassword").value = "";
+    document.getElementById("captchaAnswer").value = "";
     await bootApp();
   } catch (err) {
     errEl.textContent = err.message;

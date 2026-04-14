@@ -1361,39 +1361,41 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(15, 15, 30, 0.97);
-  border-top: 1px solid var(--border);
-  backdrop-filter: blur(8px);
-  padding: 14px 24px;
+  background: #1e1e3a;
+  border-top: 2px solid #6c63ff;
+  padding: 16px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   z-index: 9999;
   flex-wrap: wrap;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.4);
 }
 .cookie-text {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 14px;
+  color: #e2e8f0;
   flex: 1;
   min-width: 220px;
+  line-height: 1.5;
 }
 .cookie-link {
-  color: var(--primary-light);
+  color: #a78bfa;
   text-decoration: underline;
   margin-left: 4px;
 }
 .cookie-accept {
-  padding: 8px 22px;
-  background: var(--primary);
-  color: white;
+  padding: 10px 26px;
+  background: #6c63ff;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
   white-space: nowrap;
-  transition: background 0.2s;
+  transition: background 0.2s, transform 0.1s;
   flex-shrink: 0;
+  letter-spacing: 0.3px;
 }
-.cookie-accept:hover { background: var(--primary-dark); }
+.cookie-accept:hover { background: #5a52d5; transform: translateY(-1px); }
