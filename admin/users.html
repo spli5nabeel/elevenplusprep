@@ -150,6 +150,7 @@
   </div>
 </div>
 
+<script src="js/admin.js"></script>
 <script>
   requireAuth();
 
@@ -160,9 +161,16 @@
     const active = document.getElementById("filterActive").value;
     let url = "/api/admin/users?limit=500";
     if (active) url += `&active=${active}`;
-    allUsers = await adminFetch(url);
-    renderUsers();
-    updateSummary();
+    try {
+      allUsers = await adminFetch(url);
+      renderUsers();
+      updateSummary();
+    } catch (e) {
+      document.getElementById("usersBody").innerHTML =
+        `<tr><td colspan="8" style="text-align:center;padding:40px;color:#FC8181">
+          Failed to load users: ${e.message}
+        </td></tr>`;
+    }
   }
 
   function renderUsers() {
@@ -326,6 +334,5 @@
 
   loadUsers();
 </script>
-<script src="js/admin.js"></script>
 </body>
 </html>

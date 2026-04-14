@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>11+ Prep — Grammar School</title>
-  <link rel="stylesheet" href="css/style.css?v=10"/>
+  <link rel="stylesheet" href="css/style.css?v=11"/>
 </head>
 <body>
 
@@ -75,6 +75,15 @@
           <label>Password</label>
           <input type="password" id="regPassword" placeholder="Min 6 characters"
                  autocomplete="new-password" required/>
+        </div>
+        <div class="form-group" id="captchaGroup">
+          <label id="captchaQuestion">Loading…</label>
+          <div style="display:flex;gap:8px;align-items:center">
+            <input type="number" id="captchaAnswer" placeholder="Your answer" required
+                   style="flex:1" min="0" max="99"/>
+            <button type="button" class="btn-captcha-refresh" onclick="loadCaptcha()" title="New question">↺</button>
+          </div>
+          <span class="field-hint">Anti-bot check — solve the simple sum</span>
         </div>
         <button type="submit" class="btn-auth-submit" id="registerBtn">Create Account →</button>
         <p class="auth-switch">
@@ -516,6 +525,6 @@
 
 </div><!-- /screen-app -->
 
-<script src="js/app.js?v=10"></script>
+<script src="js/app.js?v=11"></script>
 </body>
 </html>

@@ -58,6 +58,21 @@ function showAppScreen() {
 // ============================================================
 //  Auth form
 // ============================================================
+
+let _captchaToken = "";
+
+async function loadCaptcha() {
+  try {
+    const res = await fetch("/api/auth/captcha");
+    const data = await res.json();
+    document.getElementById("captchaQuestion").textContent = data.question;
+    document.getElementById("captchaAnswer").value = "";
+    _captchaToken = data.token;
+  } catch (_e) {
+    document.getElementById("captchaQuestion").textContent = "Failed to load — click ↺ to retry";
+  }
+}
+
 function switchTab(tab) {
   document.getElementById("loginForm").style.display    = tab === "login"    ? "" : "none";
   document.getElementById("registerForm").style.display = tab === "register" ? "" : "none";
@@ -65,6 +80,7 @@ function switchTab(tab) {
   document.getElementById("tabRegister").classList.toggle("active", tab === "register");
   document.getElementById("loginError").classList.remove("show");
   document.getElementById("registerError").classList.remove("show");
+  if (tab === "register") loadCaptcha();
 }
 
 async function handleLogin(e) {
@@ -105,13 +121,21 @@ async function handleRegister(e) {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body:    JSON.stringify({
-        username:     document.getElementById("regUsername").value.trim(),
-        password:     document.getElementById("regPassword").value,
-        display_name: document.getElementById("regName").value.trim(),
-        year_group:   parseInt(document.getElementById("regYearGroup").value),
+        username:       document.getElementById("regUsername").value.trim(),
+        password:       document.getElementById("regPassword").value,
+        display_name:   document.getElementById("regName").value.trim(),
+        year_group:     parseInt(document.getElementById("regYearGroup").value),
+        captcha_token:  _captchaToken,
+        captcha_answer: document.getElementById("captchaAnswer").value.trim(),
       }),
     });
-    if (!r.ok) { const d = await r.json(); throw new Error(d.detail || "Registration failed"); }
+    if (!r.ok) {
+      const d = await r.json();
+      const msg = d.detail || "Registration failed";
+      // Refresh captcha on wrong answer so they can't reuse the token
+      if (msg.toLowerCase().includes("captcha")) loadCaptcha();
+      throw new Error(msg);
+    }
     const { token, user, session_id } = await r.json();
     saveAuth(token, user, session_id);
     await bootApp();
@@ -925,6 +949,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Auth forms
   document.getElementById("loginForm").addEventListener("submit",    handleLogin);
   document.getElementById("registerForm").addEventListener("submit", handleRegister);
+  loadCaptcha(); // pre-fetch so it's ready if user opens register tab
 
   // Profile modal
   document.getElementById("profileModal").addEventListener("click", e => {

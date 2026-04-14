@@ -1335,6 +1335,19 @@ body {
   backdrop-filter: blur(4px);
 }
 
+.btn-captcha-refresh {
+  padding: 8px 14px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.15s;
+  flex-shrink: 0;
+}
+.btn-captcha-refresh:hover { background: var(--border); color: var(--text); }
+
 .field-hint {
   display: block;
   font-size: 11px;

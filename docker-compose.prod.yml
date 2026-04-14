@@ -1,0 +1,23 @@
+services:
+
+  app:
+    build: .
+    container_name: grammar-school
+    expose:
+      - "8000"          # internal only — not published to host
+    networks:
+      - npm_network
+    volumes:
+      - db_data:/data
+    environment:
+      DATABASE_URL: sqlite:////data/grammar_school.db
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-changeme}
+    restart: unless-stopped
+
+networks:
+  npm_network:
+    external: true
+    name: npm_default
+
+volumes:
+  db_data:

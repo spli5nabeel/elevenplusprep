@@ -1,6 +1,10 @@
 import uuid
 import hashlib
+import hmac
+import os
+import random
 import secrets
+import time
 from datetime import datetime
 from typing import Optional
 
@@ -17,6 +21,32 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 bearer  = HTTPBearer(auto_error=False)
 
 PBKDF2_ITERS = 260_000
+
+# Captcha helpers — server-side math challenge, no external service needed
+_CAPTCHA_SECRET = (os.environ.get("ADMIN_TOKEN", "changeme") + "_captcha_v1").encode()
+CAPTCHA_TTL = 600  # 10 minutes
+
+
+def _make_captcha_token(answer: int) -> str:
+    """Return a signed token encoding the answer and a timestamp."""
+    ts = str(int(time.time()))
+    msg = f"{answer}:{ts}".encode()
+    sig = hmac.new(_CAPTCHA_SECRET, msg, hashlib.sha256).hexdigest()
+    return f"{sig}:{ts}"
+
+
+def _verify_captcha_token(token: str, answer_str: str) -> bool:
+    """Return True iff the token is valid, unexpired, and matches the answer."""
+    try:
+        sig, ts = token.rsplit(":", 1)
+        if int(time.time()) - int(ts) > CAPTCHA_TTL:
+            return False
+        answer = int(answer_str)
+        expected_msg = f"{answer}:{ts}".encode()
+        expected_sig = hmac.new(_CAPTCHA_SECRET, expected_msg, hashlib.sha256).hexdigest()
+        return hmac.compare_digest(sig, expected_sig)
+    except Exception:
+        return False
 
 
 def hash_password(password: str) -> str:
@@ -42,6 +72,8 @@ class RegisterIn(BaseModel):
     display_name: str
     year_group: int = 3
     session_id: Optional[str] = None   # link anonymous session on register
+    captcha_token: str = ""
+    captcha_answer: str = ""
 
     @field_validator("username")
     @classmethod
@@ -156,8 +188,24 @@ def _resolve_user_session(user_id: int, anon_session_id: Optional[str], db: DBSe
 
 # ---- Routes ----
 
+@router.get("/captcha")
+def get_captcha():
+    """Return a fresh math CAPTCHA challenge."""
+    a = random.randint(2, 12)
+    b = random.randint(2, 12)
+    answer = a + b
+    return {
+        "question": f"What is {a} + {b}?",
+        "token": _make_captcha_token(answer),
+    }
+
+
 @router.post("/register", response_model=AuthResponse, status_code=201)
 def register(payload: RegisterIn, db: DBSession = Depends(get_db)):
+    # Verify CAPTCHA before anything else
+    if not _verify_captcha_token(payload.captcha_token, payload.captcha_answer):
+        raise HTTPException(status_code=400, detail="Incorrect CAPTCHA answer — please try again")
+
     existing = db.execute(select(User).where(User.username == payload.username)).scalar_one_or_none()
     if existing:
         raise HTTPException(status_code=409, detail="Username already taken")
